@@ -1,144 +1,136 @@
+// vector.hpp
+
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-#include <iostream>
-#include <initializer_list>
-#include <cmath>
-#include <type_traits>
+#include <cmath> // For math functions like sqrt
+#include <type_traits> // For static_assert
 
 namespace linear_algebra {
 
-    // Type trait to check if all types in a parameter pack are arithmetic
-    template<typename... Args>
-    struct are_arithmetic : std::conjunction<std::is_arithmetic<Args>...> {};
-
-    template<typename T, size_t size>
+    template<typename T, size_t N>
     class Vector {
     public:
         // Constructors
         Vector();
-        Vector(const T& value);
-        Vector(const std::initializer_list<T>& list);
-        template<typename... Args,
-                 typename = std::enable_if_t<are_arithmetic<Args...>::value>>
-        Vector(Args... args);
-        Vector(const Vector& other);
-        
-        // Destructor
-        ~Vector();
-        
-        // Assignment operator
-        Vector& operator=(const Vector& other);
-        
-        // Access operators
-        T& operator[](size_t index);
-        const T& operator[](size_t index) const;
-        
-        // Other methods
-        size_t Size() const;
-        void Print() const;
+        Vector(const T (&arr)[N]);
 
-        // Friend declaration for scalar multiplication
-        template<typename U>
-        friend Vector<T, size> operator*(const U& scalar, const Vector<T, size>& vec);
+        // Basic operations
+        Vector<T, N> operator+(const Vector<T, N>& other) const;
+        Vector<T, N> operator-(const Vector<T, N>& other) const;
+        Vector<T, N> operator*(T scalar) const;
+        T dot(const Vector<T, N>& other) const;
 
+        // Cross product (for 3D vectors)
+        template<typename U = T>
+        Vector<T, 3> cross(const Vector<U, 3>& other) const;
+
+        // Normalization
+        Vector<T, N> normalize() const;
+
+        // Magnitude
+        T magnitude() const;
+
+        friend std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec) {
+        os << "(";
+        for (size_t i = 0; i < N; ++i) {
+            os << vec.data[i];
+            if (i != N - 1) {
+                os << ", ";
+            }
+        }
+        os << ")";
+        return os;
+    }
+        
     private:
-        T data[size];
+        T data[N];
     };
 
-    // Implementation of methods
-
-    // Default constructor
-    template<typename T, size_t size>
-    Vector<T, size>::Vector() : data{} {}
-
-    // Constructor with a single value
-    template<typename T, size_t size>
-    Vector<T, size>::Vector(const T& value) {
-        std::fill(data, data + size, value);
-    }
-
-    // Constructor with initializer list
-    template<typename T, size_t size>
-    Vector<T, size>::Vector(const std::initializer_list<T>& list) {
-        size_t i = 0;
-        for (const auto& val : list) {
-            if (i >= size) break;
-            data[i++] = val;
+    // Constructors
+    template<typename T, size_t N>
+    Vector<T, N>::Vector() {
+        // Initialize all elements to zero
+        for (size_t i = 0; i < N; ++i) {
+            data[i] = T();
         }
     }
 
-    // Constructor with variadic arguments
-    template<typename T, size_t size>
-    template<typename... Args,
-             typename>
-    Vector<T, size>::Vector(Args... args) {
-        static_assert(sizeof...(args) == size, "Number of arguments must match the size of the vector");
-        size_t i = 0;
-        ((data[i++] = args), ...);
-    }
-
-    // Copy constructor
-    template<typename T, size_t size>
-    Vector<T, size>::Vector(const Vector& other) {
-        std::copy(other.data, other.data + size, data);
-    }
-
-    // Destructor
-    template<typename T, size_t size>
-    Vector<T, size>::~Vector() {}
-
-    // Assignment operator
-    template<typename T, size_t size>
-    Vector<T, size>& Vector<T, size>::operator=(const Vector& other) {
-        if (this != &other) {
-            std::copy(other.data, other.data + size, data);
+    template<typename T, size_t N>
+    Vector<T, N>::Vector(const T (&arr)[N]) {
+        // Copy the array into the vector data
+        for (size_t i = 0; i < N; ++i) {
+            data[i] = arr[i];
         }
-        return *this;
     }
 
-    // Access operator
-    template<typename T, size_t size>
-    T& Vector<T, size>::operator[](size_t index) {
-        if (index >= size) {
-            throw std::out_of_range("Index out of range");
-        }
-        return data[index];
-    }
-
-    // Const access operator
-    template<typename T, size_t size>
-    const T& Vector<T, size>::operator[](size_t index) const {
-        if (index >= size) {
-            throw std::out_of_range("Index out of range");
-        }
-        return data[index];
-    }
-
-    // Size method
-    template<typename T, size_t size>
-    size_t Vector<T, size>::Size() const {
-        return size;
-    }
-
-    // Print method
-    template<typename T, size_t size>
-    void Vector<T, size>::Print() const {
-        std::cout << "[ ";
-        for (size_t i = 0; i < size; ++i) {
-            std::cout << data[i] << " ";
-        }
-        std::cout << "]" << std::endl;
-    }
-
-    // Scalar multiplication operator
-    template<typename T, size_t size, typename U>
-    Vector<T, size> operator*(const U& scalar, const Vector<T, size>& vec) {
-        Vector<T, size> result;
-        for (size_t i = 0; i < size; ++i) {
-            result[i] = scalar * vec[i];
+    // Basic operations
+    template<typename T, size_t N>
+    Vector<T, N> Vector<T, N>::operator+(const Vector<T, N>& other) const {
+        Vector<T, N> result;
+        for (size_t i = 0; i < N; ++i) {
+            result.data[i] = data[i] + other.data[i];
         }
         return result;
+    }
+
+    template<typename T, size_t N>
+    Vector<T, N> Vector<T, N>::operator-(const Vector<T, N>& other) const {
+        Vector<T, N> result;
+        for (size_t i = 0; i < N; ++i) {
+            result.data[i] = data[i] - other.data[i];
+        }
+        return result;
+    }
+
+    template<typename T, size_t N>
+    Vector<T, N> Vector<T, N>::operator*(T scalar) const {
+        Vector<T, N> result;
+        for (size_t i = 0; i < N; ++i) {
+            result.data[i] = data[i] * scalar;
+        }
+        return result;
+    }
+
+    template<typename T, size_t N>
+    T Vector<T, N>::dot(const Vector<T, N>& other) const {
+        T result = T();
+        for (size_t i = 0; i < N; ++i) {
+            result += data[i] * other.data[i];
+        }
+        return result;
+    }
+
+    // Cross product (for 3D vectors)
+    template<typename T, size_t N>
+    template<typename U>
+    Vector<T, 3> Vector<T, N>::cross(const Vector<U, 3>& other) const {
+        static_assert(N == 3, "Cross product is only defined for 3D vectors");
+        Vector<T, 3> result;
+        result.data[0] = data[1] * other.data[2] - data[2] * other.data[1];
+        result.data[1] = data[2] * other.data[0] - data[0] * other.data[2];
+        result.data[2] = data[0] * other.data[1] - data[1] * other.data[0];
+        return result;
+    }
+
+    // Normalization
+    template<typename T, size_t N>
+    Vector<T, N> Vector<T, N>::normalize() const {
+        T mag = magnitude();
+        if (mag == T(0)) {
+            return *this;
+        }
+        return *this * (T(1) / mag);
+    }
+
+    // Magnitude
+    template<typename T, size_t N>
+    T Vector<T, N>::magnitude() const {
+        T sum_sq = T();
+        for (size_t i = 0; i < N; ++i) {
+            sum_sq += data[i] * data[i];
+        }
+        return std::sqrt(sum_sq);
     }
 
 } // namespace linear_algebra
