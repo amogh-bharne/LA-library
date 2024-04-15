@@ -73,20 +73,8 @@ namespace linear_algebra {
             return result;
         }
 
-        // //Multiply vector and matrix
-        // template<size_t N>
-        // friend Vector<T, Rows> operator*(const Matrix<T,Rows,Cols>&mat ,const Vector<T, N>& vec) {
-        //     static_assert(Cols == N, "Number of columns in the matrix must match the size of the vector.");
-        //     Vector<T, Rows> result;
-        //     for (size_t i = 0; i < Rows; ++i) {
-        //         T sum = 0;
-        //         for (size_t j = 0; j < Cols; ++j) {
-        //             sum += data[i][j] * vec[j];
-        //         }
-        //         result[i] = sum;
-        //     }
-        //     return result;
-        // }
+        //Multiply vector and matrix
+ 
         template<size_t N>
         friend Vector<T, Rows> operator*(const Matrix<T,Rows,Cols>& mat ,const Vector<T, N>& vec) {
         static_assert(Cols == N, "Number of columns in the matrix must match the size of the vector.");
@@ -120,13 +108,27 @@ namespace linear_algebra {
         // Calculate the Frobenius norm of the matrix
         T norm() const;
 
-        //eigenvector and eigenvalue
-        std::pair<double,Matrix<T,Rows,1>> eigen();
+        //solve linear equations
+        template<size_t N>
+        Vector<T, N> solve_linear_equations(Vector<T, N>& b) {
 
+            static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Matrix A must be square");
+
+
+            // Calculate the inverse of the coefficient matrix
+            Matrix<T, N, N> A_inv = this->inverse();
+
+            // Solve the system of linear equations
+            Vector<T, N> x = A_inv * b;
+
+            return x;
+        }
+
+        
+
+
+    private:
         std::array<std::array<T, Cols>, Rows> data;
-
-
-    //private:
         
     };
 
