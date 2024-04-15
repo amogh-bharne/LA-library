@@ -23,8 +23,10 @@ namespace linear_algebra {
     template<typename T, int N>
     struct is_square_matrix<Matrix<T, N, N>, N, N> : std::true_type {};
 
+    // Concepts to check if T is a numeric type
+    template <typename T>
+    concept Numeric = std::is_arithmetic_v<T>;
 
-    
 
     // Matrix class definition
     template<typename T, int Rows, int Cols>
@@ -90,30 +92,27 @@ namespace linear_algebra {
     }
 
         // Scalar operations
-        Matrix<T, Rows, Cols> operator*(T scalar) const;
-        Matrix<T, Rows, Cols> operator/(T scalar) const;
+        Matrix<T, Rows, Cols> operator*(T scalar) const requires Numeric<T>;
+        Matrix<T, Rows, Cols> operator/(T scalar) const requires Numeric<T>;
 
         // Transpose
         Matrix<T, Cols, Rows> transpose() const;
 
         // Inverse (if possible)
-        Matrix<T, Rows, Cols> inverse() const;
+        Matrix<T, Rows, Cols> inverse() const requires Numeric<T>;
 
         // Determinant (if possible)
-        double determinant() const;
+        double determinant() const requires Numeric<T>;
 
         // Display matrix
         void display() const;
 
         // Calculate the Frobenius norm of the matrix
-        T norm() const;
+        T norm() const requires Numeric<T>;
 
         //solve linear equations
         template<size_t N>
-        Vector<T, N> solve_linear_equations(Vector<T, N>& b) {
-
-            static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Matrix A must be square");
-
+        Vector<T, N> solve_linear_equations(Vector<T, N>& b) requires Numeric<T> && is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value {
 
             // Calculate the inverse of the coefficient matrix
             Matrix<T, N, N> A_inv = this->inverse();
@@ -124,12 +123,7 @@ namespace linear_algebra {
             return x;
         }
 
-        
-
-
-    private:
         std::array<std::array<T, Cols>, Rows> data;
-        
     };
 
     // Constructors
@@ -177,7 +171,7 @@ namespace linear_algebra {
 
     // Scalar operations
     template<typename T, int Rows, int Cols>
-    Matrix<T, Rows, Cols> Matrix<T, Rows, Cols>::operator*(T scalar) const {
+    Matrix<T, Rows, Cols> Matrix<T, Rows, Cols>::operator*(T scalar) const requires Numeric<T> {
         Matrix<T, Rows, Cols> result;
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
@@ -188,7 +182,7 @@ namespace linear_algebra {
     }
 
     template<typename T, int Rows, int Cols>
-    Matrix<T, Rows, Cols> Matrix<T, Rows, Cols>::operator/(T scalar) const {
+    Matrix<T, Rows, Cols> Matrix<T, Rows, Cols>::operator/(T scalar) const requires Numeric<T> {
         if (scalar == 0) {
             throw std::runtime_error("Division by zero");
         }
@@ -212,68 +206,66 @@ namespace linear_algebra {
         }
         return result;
     }
-// Inverse (if possible)
-template<typename T, int Rows, int Cols>
-Matrix<T, Rows, Cols> Matrix<T, Rows, Cols>::inverse() const {
-    static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Inverse is only defined for square matrices");
 
-    // Calculate the determinant of the matrix
-    T det = determinant();
-    if (det == T(0)) {
-        // Matrix is singular, inverse doesn't exist
-        throw std::runtime_error("Matrix is singular, inverse doesn't exist");
-    }
+    // Inverse (if possible)
+    template<typename T, int Rows, int Cols>
+    Matrix<T, Rows, Cols> Matrix<T, Rows, Cols>::inverse() const requires Numeric<T> {
+        static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Inverse is only defined for square matrices");
 
-    // Calculate the adjugate matrix
-    Matrix<T, Rows, Cols> adjugate;
-    for (int i = 0; i < Rows; ++i) {
-        for (int j = 0; j < Cols; ++j) {
-            // Calculate the cofactor of element (i, j)
-            Matrix<T, Rows - 1, Cols - 1> minor;
-            for (int m = 0, p = 0; m < Rows; ++m) {
-                if (m == i) continue;
-                for (int n = 0, q = 0; n < Cols; ++n) {
-                    if (n == j) continue;
-                    minor(p, q++) = data[m][n];
+        // Calculate the determinant of the matrix
+        T det = determinant();
+        if (det == T(0)) {
+            // Matrix is singular, inverse doesn't exist
+            throw std::runtime_error("Matrix is singular, inverse doesn't exist");
+        }
+
+        // Calculate the adjugate matrix
+        Matrix<T, Rows, Cols> adjugate;
+        for (int i = 0; i < Rows; ++i) {
+            for (int j = 0; j < Cols; ++j) {
+                // Calculate the cofactor of element (i, j)
+                Matrix<T, Rows - 1, Cols - 1> minor;
+                for (int m = 0, p = 0; m < Rows; ++m) {
+                    if (m == i) continue;
+                    for (int n = 0, q = 0; n < Cols; ++n) {
+                        if (n == j) continue;
+                        minor(p, q++) = data[m][n];
+                    }
+                    ++p;
                 }
-                ++p;
+                // Calculate the sign of the cofactor
+                T sign = ((i + j) % 2 == 0) ? T(1) : T(-1);
+                // Calculate the determinant of the minor matrix
+                T minor_det = minor.determinant();
+                // Calculate the cofactor
+                adjugate(j, i) = sign * minor_det;
             }
-            // Calculate the sign of the cofactor
-            T sign = ((i + j) % 2 == 0) ? T(1) : T(-1);
-            // Calculate the determinant of the minor matrix
-            T minor_det = minor.determinant();
-            // Calculate the cofactor
-            adjugate(j, i) = sign * minor_det;
         }
+
+        // Divide the adjugate matrix by the determinant
+        Matrix<T, Rows, Cols> inversed;
+        for (int i = 0; i < Rows; ++i) {
+            for (int j = 0; j < Cols; ++j) {
+                inversed(i, j) = adjugate(i, j) / det;
+            }
+        }
+
+        return inversed;
     }
 
-    // Divide the adjugate matrix by the determinant
-    Matrix<T, Rows, Cols> inversed;
-    for (int i = 0; i < Rows; ++i) {
-        for (int j = 0; j < Cols; ++j) {
-            inversed(i, j) = adjugate(i, j) / det;
+    // Calculate the Frobenius norm of the matrix
+    template<typename T, int Rows, int Cols>
+    T Matrix<T, Rows, Cols>::norm() const requires Numeric<T> {
+        T sum = T();
+        for (int i = 0; i < Rows; ++i) {
+            for (int j = 0; j < Cols; ++j) {
+                sum += data[i][j] * data[i][j];
+            }
         }
+        return std::sqrt(sum);
     }
-
-    return inversed;
-}
-
-// Calculate the Frobenius norm of the matrix
-template<typename T, int Rows, int Cols>
-T Matrix<T, Rows, Cols>::norm() const {
-    T sum = T();
-    for (int i = 0; i < Rows; ++i) {
-        for (int j = 0; j < Cols; ++j) {
-            sum += data[i][j] * data[i][j];
-        }
-    }
-    return std::sqrt(sum);
-}
-
-    
 
     // Display matrix
-
     template<typename T, int Rows, int Cols>
     void Matrix<T, Rows, Cols>::display() const {
         for (int i = 0; i < Rows; ++i) {
@@ -284,86 +276,39 @@ T Matrix<T, Rows, Cols>::norm() const {
         }
     }
 
-
-
-template<typename T, int Rows, int Cols>
-double determinant_helper(const Matrix<T, Rows, Cols>& mat,const int n) {
-    
-    double det = 0;
-    //printf("n = %d\n",n);
-    if (n == 1) {
-        return mat(0, 0); // For a 1x1 matrix, determinant is the single element
-    } else if  (n == 2) {
-        return mat(0, 0) * mat(1, 1) - mat(0, 1) * mat(1, 0); // For a 2x2 matrix, use the standard formula
-    } else {
-
-        Matrix<T, Rows, Cols> submat;
-        
-        for (int x = 0; x < n; x++) {
-            int subi = 0;
-            for (int  i = 1; i < n ; i++) {
-                int subj = 0;
-                for (int j = 0; j < n; j++) {
-                    if (j == x) 
-                        continue;
-                    
-                    submat(subi, subj) = mat(i, j);
-                    //printf("submat\n");
-                    //submat.display();
-                    //printf("\n");
-
-                    subj++;
-                }  
-                subi++;
-            } 
-            
-            det += (pow(-1,x) * mat(0, x) * determinant_helper(submat,n-1));
+    template<typename T, int Rows, int Cols>
+    double determinant_helper(const Matrix<T, Rows, Cols>& mat, const int n) requires Numeric<T> {
+        double det = 0;
+        if (n == 1) {
+            return mat(0, 0); // For a 1x1 matrix, determinant is the single element
+        } else if (n == 2) {
+            return mat(0, 0) * mat(1, 1) - mat(0, 1) * mat(1, 0); // For a 2x2 matrix, use the standard formula
+        } else {
+            Matrix<T, Rows, Cols> submat;
+            for (int x = 0; x < n; x++) {
+                int subi = 0;
+                for (int i = 1; i < n; i++) {
+                    int subj = 0;
+                    for (int j = 0; j < n; j++) {
+                        if (j == x)
+                            continue;
+                        submat(subi, subj) = mat(i, j);
+                        subj++;
+                    }
+                    subi++;
+                }
+                det += (pow(-1, x) * mat(0, x) * determinant_helper(submat, n - 1));
+            }
         }
+        return det;
     }
-        
-    return det;
-}
 
-// Determinant (if possible)
-template<typename T, int Rows, int Cols>
-double Matrix<T, Rows, Cols>::determinant() const {
-    static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Determinant is only defined for square matrices");
-    return determinant_helper(*this,Rows);
-}
-
-// template<typename T, int Rows, int Cols>
-// std::pair<double,Matrix<T,Rows,1>> Matrix<T, Rows, Cols>::eigen() {
-//     static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Eigen is only defined for square matrices");
-//     // Multiply matrix by its transpose to ensure a square matrix
-//     Matrix<T, Cols, Cols> square_matrix = this->transpose() * (*this);
-
-//     // Initialize a random vector as the initial guess
-//     Matrix<T, Cols, 1> eigenvector;
-//     for (int i = 0; i < Cols; ++i) {
-//         eigenvector(i, 0) = static_cast<T>(rand()) / RAND_MAX;
-//     }
-
-//     T lambda_prev = 0;
-//     T lambda = 0;
-//     for (int iter = 0; iter < 1000; ++iter) {
-//         // Multiply matrix by the eigenvector
-//         Matrix<T, Cols, 1> product = square_matrix * eigenvector;
-//         // Find the norm of the product
-//         T norm = product.norm();
-//         // Normalize the eigenvector
-//         eigenvector = product / norm;
-//         // Calculate the eigenvalue
-//         lambda = (eigenvector.transpose() * square_matrix * eigenvector)(0, 0);
-//         // Check for convergence
-//         if (std::abs(lambda - lambda_prev) < 1e-6) {
-//             break;
-//         }
-//         lambda_prev = lambda;
-//     }
-
-//     return {lambda, eigenvector};
-// }
-
+    // Determinant (if possible)
+    template<typename T, int Rows, int Cols>
+    double Matrix<T, Rows, Cols>::determinant() const requires Numeric<T> {
+        static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Determinant is only defined for square matrices");
+        return determinant_helper(*this, Rows);
+    }
 
 } // namespace linear_algebra
 

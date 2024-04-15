@@ -1,88 +1,110 @@
+#include <iostream>
+#include <iomanip>
 #include "../include/linear_algebra/matrix.hpp"
 
-#include <iostream>
+
+using namespace linear_algebra;
 
 int main() {
-    // Creating matrices for testing
-    //linear_algebra::Matrix<double, 2, 2> mat2x2({{1, 2}, {3, 4}});
-    linear_algebra::Matrix<double, 3, 3> mat3x2({{9,6,3},{0,6,7},{0,0,9}});
-    //linear_algebra::Matrix<double, 4, 4> mat4x4({{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 16}});
+    // Test default constructor
+    std::cout << "Testing default constructor:\n";
+    Matrix<double, 3, 3> m1;
+    m1.display();
+    std::cout << std::endl;
 
-    // Displaying original matrices
-    //std::cout << "Original 2x2 Matrix:" << std::endl;
-    //mat2x2.display();
+    // Test array constructor
+    std::cout << "Testing array constructor:\n";
+    std::array<std::array<double, 2>, 2> data = {{{1.0, 2.0}, {3.0, 4.0}}};
+    Matrix<double, 2, 2> m2(data);
+    m2.display();
+    std::cout << std::endl;
 
-    std::cout << "\nOriginal 3x2 Matrix:" << std::endl;
-    mat3x2.display();
+    // Test initializer list constructor
+    std::cout << "Testing initializer list constructor:\n";
+    Matrix<double, 2, 2> m3({{1.0, 2.0}, {3.0, 4.0}});
+    m3.display();
+    std::cout << std::endl;
 
-    //std::cout << "\nOriginal 4x4 Matrix:" << std::endl;
-    //mat4x4.display();
+    // Test accessor functions
+    std::cout << "Testing accessor functions:\n";
+    std::cout << "m2(0, 0) = " << m2(0, 0) << std::endl;
+    m2(0, 0) = 5.0;
+    std::cout << "m2(0, 0) = " << m2(0, 0) << std::endl;
+    std::cout << std::endl;
 
-    // //Testing transpose
-    // std::cout << "\nTransposed 2x2 Matrix:" << std::endl;
-    // mat2x2.transpose().display();
+    // Test addition
+    std::cout << "Testing addition:\n";
+    Matrix<double, 2, 2> m4{{1.0, 2.0}, {3.0, 4.0}};
+    Matrix<double, 2, 2> m5{{5.0, 6.0}, {7.0, 8.0}};
+    Matrix<double, 2, 2> m6 = m4 + m5;
+    m6.display();
+    std::cout << std::endl;
 
-    // std::cout << "\nTransposed 3x3 Matrix:" << std::endl;
-    // mat3x3.transpose().display();
+    // Test subtraction
+    std::cout << "Testing subtraction:\n";
+    Matrix<double, 2, 2> m7 = m5 - m4;
+    m7.display();
+    std::cout << std::endl;
 
-    // std::cout << "\nTransposed 4x4 Matrix:" << std::endl;
-    // mat4x4.transpose().display();
+    // Test multiplication
+    std::cout << "Testing multiplication:\n";
+    Matrix<double, 2, 3> m8{{1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}};
+    Matrix<double, 3, 2> m9{{7.0, 8.0}, {9.0, 10.0}, {11.0, 12.0}};
+    Matrix<double, 2, 2> m10 = m8 * m9;
+    m10.display();
+    std::cout << std::endl;
 
-    // Testing determinant
-    //std::cout << "\nDeterminant of 2x2 Matrix: " << mat2x2.determinant() << std::endl;
-    //std::cout << "Determinant of 3x3 Matrix: " << mat3x3.determinant() << std::endl;
-    //std::cout << "Determinant of 4x4 Matrix: " << mat4x4.determinant() << std::endl;
+    // Test matrix-vector multiplication
+    std::cout << "Testing matrix-vector multiplication:\n";
+    Vector<double, 3> v({7.0, 8.0, 9.0});
+    Vector<double, 2> w = m8 * v;
+    std::cout << "w = [" << w[0] << ", " << w[1] << "]" << std::endl;
+    std::cout << std::endl;
 
-    // // Testing Frobenius norm
-    // std::cout << "\nFrobenius Norm of 2x2 Matrix: " << mat2x2.norm() << std::endl;
-    // std::cout << "Frobenius Norm of 3x3 Matrix: " << mat3x3.norm() << std::endl;
-    // std::cout << "Frobenius Norm of 4x4 Matrix: " << mat4x4.norm() << std::endl;
+    // Test scalar multiplication
+    std::cout << "Testing scalar multiplication:\n";
+    Matrix<double, 2, 2> m11 = m4 * 2.0;
+    m11.display();
+    std::cout << std::endl;
 
-    // // Testing scalar operations
-    // double scalar = 2.5;
-    // std::cout << "\n2x2 Matrix after multiplying with scalar " << scalar << ":" << std::endl;
-    // (mat2x2 * scalar).display();
+    // Test scalar division
+    std::cout << "Testing scalar division:\n";
+    Matrix<double, 2, 2> m12 = m11 / 2.0;
+    m12.display();
+    std::cout << std::endl;
 
-    // std::cout << "\n3x3 Matrix after dividing by scalar " << scalar << ":" << std::endl;
-    // (mat3x3 / scalar).display();
+    // Test transpose
+    std::cout << "Testing transpose:\n";
+    Matrix<double, 2, 3> m13{{1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}};
+    Matrix<double, 3, 2> m14 = m13.transpose();
+    m14.display();
+    std::cout << std::endl;
 
-    // // Testing matrix operations
-    // std::cout << "\nSum of 3x3 and 3x3 matrices:" << std::endl;
-    // (mat3x3 + mat3x3).display();
+    // Test inverse
+    std::cout << "Testing inverse:\n";
+    Matrix<double, 2, 2> m15{{1.0, 2.0}, {3.0, 4.0}};
+    Matrix<double, 2, 2> m16 = m15.inverse();
+    m16.display();
+    std::cout << std::endl;
 
-    // std::cout << "\nDifference of 3x3 and 3x3 matrices:" << std::endl;
-    // (mat3x3 - mat3x3).display();
+    // Test determinant
+    std::cout << "Testing determinant:\n";
+    double det = m15.determinant();
+    std::cout << "Determinant of m15: " << det << std::endl;
+    std::cout << std::endl;
 
-    // std::cout << "\nProduct of 3x3 and 3x3 matrices:" << std::endl;
-    // (mat3x3 * mat3x3).display();
+    // Test Frobenius norm
+    std::cout << "Testing Frobenius norm:\n";
+    double norm = m15.norm();
+    std::cout << "Frobenius norm of m15: " << norm << std::endl;
+    std::cout << std::endl;
 
-    // Testing inverse
-    // try {
-    //     std::cout << "\nInverse of 2x2 Matrix:" << std::endl;
-    //     mat2x2.inverse().display();
-    // } catch (const std::exception& e) {
-    //     std::cerr << "Exception while computing inverse: " << e.what() << std::endl;
-    // }
-
-    // try {
-    //     std::cout << "\nInverse of 3x3 Matrix:" << std::endl;
-    //     mat3x3.inverse().display();
-    // } catch (const std::exception& e) {
-    //     std::cerr << "Exception while computing inverse: " << e.what() << std::endl;
-    // }
-
-    // try {
-    //     std::cout << "\nInverse of 4x4 Matrix:" << std::endl;
-    //     mat4x4.inverse().display();
-    // } catch (const std::exception& e) {
-    //     std::cerr << "Exception while computing inverse: " << e.what() << std::endl;
-    // }
-
-    //testing eigen
-
-    //auto [eigenvalues, eigenvectors] = mat3x2.eigen();
-    //std::cout << "\nEigenvalues of 3x3 Matrix:" << std::endl;
-    
+    // Test solve linear equations
+    std::cout << "Testing solve linear equations:\n";
+    Matrix<double, 3, 3> m17{{2.0, 1.0, 1.0}, {1.0, 2.0, 1.0}, {1.0, 1.0, 2.0}};
+    Vector<double, 3> b({7.0, 6.0, 6.0});
+    Vector<double, 3> x = m17.solve_linear_equations(b);
+    std::cout << "Solution: [" << x[0] << ", " << x[1] << ", " << x[2] << "]" << std::endl;
 
     return 0;
 }

@@ -1,24 +1,18 @@
-// auto_differentiation.hpp
-
 #ifndef AUTO_DIFFERENTIATION_HPP
 #define AUTO_DIFFERENTIATION_HPP
 
-#include "vector.hpp"
 #include <cmath>
+#include <functional>
 
 namespace linear_algebra {
-
-    //Primary ADvariable
-    template<typename T>
+    // Primary template for ADVariable
+    template <typename T>
     class ADVariable {
     public:
-        //
-        ADVariable(const T& value, const T& derivate) : value(value), derivative(derivative){}
+        ADVariable(const T& value, const T& derivative)
+            : value(value), derivative(derivative) {}
 
-        // Getter for value
         T getValue() const { return value; }
-
-        // Getter for derivative
         T getDerivative() const { return derivative; }
 
     private:
@@ -26,16 +20,13 @@ namespace linear_algebra {
         T derivative;
     };
 
-    // Template specialization for ADVariable with derivative
-    template<typename T>
+    // Specialization for constant ADVariable
+    template <typename T>
     class ADVariable<T*> {
     public:
-        //ADVariable(const T& value, const T& derivative) : value(value), derivative(derivative) {}
         ADVariable(const T& value) : value(value), derivative(0) {}
-        // Getter for value
-        T getValue() const { return value.getValue(); }
 
-        // Getter for derivative
+        T getValue() const { return value; }
         T getDerivative() const { return derivative; }
 
     private:
@@ -44,52 +35,58 @@ namespace linear_algebra {
     };
 
     // Overloaded arithmetic operations for ADVariable
-    template<typename T>
+    template <typename T>
     ADVariable<T> operator+(const ADVariable<T>& lhs, const ADVariable<T>& rhs) {
         return ADVariable<T>(lhs.getValue() + rhs.getValue(), lhs.getDerivative() + rhs.getDerivative());
     }
 
-    template<typename T>
+    template <typename T>
     ADVariable<T> operator-(const ADVariable<T>& lhs, const ADVariable<T>& rhs) {
         return ADVariable<T>(lhs.getValue() - rhs.getValue(), lhs.getDerivative() - rhs.getDerivative());
     }
 
-    template<typename T>
+    template <typename T>
     ADVariable<T> operator*(const ADVariable<T>& lhs, const ADVariable<T>& rhs) {
         return ADVariable<T>(lhs.getValue() * rhs.getValue(), lhs.getValue() * rhs.getDerivative() + lhs.getDerivative() * rhs.getValue());
     }
 
-    template<typename T>
+    template <typename T>
     ADVariable<T> operator/(const ADVariable<T>& lhs, const ADVariable<T>& rhs) {
         return ADVariable<T>(lhs.getValue() / rhs.getValue(), (lhs.getDerivative() * rhs.getValue() - lhs.getValue() * rhs.getDerivative()) / (rhs.getValue() * rhs.getValue()));
     }
 
     // Elementary functions with auto-differentiation support
-    template<typename T>
+    template <typename T>
     ADVariable<T> exp(const ADVariable<T>& x) {
         return ADVariable<T>(std::exp(x.getValue()), x.getDerivative() * std::exp(x.getValue()));
     }
 
-    template<typename T>
+    template <typename T>
     ADVariable<T> log(const ADVariable<T>& x) {
         return ADVariable<T>(std::log(x.getValue()), x.getDerivative() / x.getValue());
     }
 
-    template<typename T>
+    template <typename T>
     ADVariable<T> sin(const ADVariable<T>& x) {
         return ADVariable<T>(std::sin(x.getValue()), x.getDerivative() * std::cos(x.getValue()));
     }
 
-    template<typename T>
+    template <typename T>
     ADVariable<T> cos(const ADVariable<T>& x) {
         return ADVariable<T>(std::cos(x.getValue()), -x.getDerivative() * std::sin(x.getValue()));
     }
 
-    // Example usage:
-    // ADVariable<double> x(2, 1); // Create ADVariable with value 2 and derivative 1
-    // ADVariable<double> y(3, 0); // Create ADVariable with value 3 and derivative 0
-    // ADVariable<double> z = exp(x * y); // Compute exp(x * y) with auto-differentiation
+    // Variadic template function for sum of ADVariable objects
+    template <typename T, typename... Args>
+    ADVariable<T> sum(const ADVariable<T>& first, const Args&... rest) {
+        return (first + ... + ADVariable<T>(rest.getValue(), rest.getDerivative()));
+    }
 
-} // namespace linear_algebra
+    // Lambda template for generic transformation of ADVariable objects
+    template <typename T, typename Func>
+    ADVariable<T> transform(const ADVariable<T>& x, Func&& f) {
+        return ADVariable<T>(f(x.getValue()), x.getDerivative() * f(x.getValue()));
+    }
+}
 
 #endif // AUTO_DIFFERENTIATION_HPP

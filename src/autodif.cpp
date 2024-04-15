@@ -4,17 +4,18 @@
 int main() {
     using namespace linear_algebra;
 
-    // Create ADVariable with value 2 and derivative 1
     ADVariable<double> x(2.0, 1.0);
-
-    // Create ADVariable with value 3 and derivative 0
     ADVariable<double> y(3.0, 0.0);
+    ADVariable<double> z(4.0, 0.5);
 
-    // Compute exp(x * y) with auto-differentiation
-    ADVariable<double> z = exp(x * y);
+    // Use the sum function with variadic templates
+    ADVariable<double> sum_of_vars = sum(x, y, z);
+    std::cout << "Sum of variables: " << sum_of_vars.getValue() << ", Derivative: " << sum_of_vars.getDerivative() << std::endl;
 
-    std::cout << "z = " << z.getValue() << std::endl;
-    std::cout << "dz/dx = " << z.getDerivative() << std::endl;
+    // Use the transform function with a lambda template
+    auto square = [](double v) { return v * v; };
+    ADVariable<double> squared_x = transform(x, square);
+    std::cout << "Squared x: " << squared_x.getValue() << ", Derivative: " << squared_x.getDerivative() << std::endl;
 
     return 0;
 }
