@@ -5,6 +5,7 @@
 
 #include <cmath> // For math functions like sqrt
 #include <type_traits> // For static_assert
+#include <ostream>
 
 namespace linear_algebra {
 

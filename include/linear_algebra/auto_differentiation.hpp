@@ -8,15 +8,12 @@
 
 namespace linear_algebra {
 
-    // Forward declaration for ADVariable
+    //Primary ADvariable
     template<typename T>
-    class ADVariable;
-
-    // Template specialization for constant ADVariable
-    template<typename T>
-    class ADVariable<T> {
+    class ADVariable {
     public:
-        ADVariable(const T& value) : value(value), derivative(0) {}
+        //
+        ADVariable(const T& value, const T& derivate) : value(value), derivative(derivative){}
 
         // Getter for value
         T getValue() const { return value; }
@@ -31,10 +28,10 @@ namespace linear_algebra {
 
     // Template specialization for ADVariable with derivative
     template<typename T>
-    class ADVariable<ADVariable<T>> {
+    class ADVariable<T*> {
     public:
-        ADVariable(const T& value, const T& derivative) : value(value), derivative(derivative) {}
-
+        //ADVariable(const T& value, const T& derivative) : value(value), derivative(derivative) {}
+        ADVariable(const T& value) : value(value), derivative(0) {}
         // Getter for value
         T getValue() const { return value.getValue(); }
 
@@ -42,7 +39,7 @@ namespace linear_algebra {
         T getDerivative() const { return derivative; }
 
     private:
-        ADVariable<T> value;
+        T value;
         T derivative;
     };
 
