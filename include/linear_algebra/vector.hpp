@@ -1,10 +1,10 @@
-// vector.hpp
+//Contains implementation for Vector class
 
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-#include <cmath> // For math functions like sqrt
-#include <type_traits> // For static_assert
+#include <cmath> 
+#include <type_traits> 
 #include <ostream>
 
 namespace linear_algebra {
@@ -110,7 +110,7 @@ namespace linear_algebra {
         return result;
     }
 
-    // Cross product (for 3D vectors)
+    // Cross product, specialized only for 3D vectors
     template<typename T, size_t N>
     template<typename U>
     Vector<T, 3> Vector<T, N>::cross(const Vector<U, 3>& other) const {
@@ -142,6 +142,6 @@ namespace linear_algebra {
         return std::sqrt(sum_sq);
     }
 
-} // namespace linear_algebra
+} 
 
-#endif // VECTOR_HPP
+#endif 

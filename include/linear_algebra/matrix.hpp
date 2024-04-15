@@ -1,4 +1,4 @@
-// matrix.hpp
+//Contains implementation for Matrix class
 
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
@@ -23,7 +23,7 @@ namespace linear_algebra {
     template<typename T, int N>
     struct is_square_matrix<Matrix<T, N, N>, N, N> : std::true_type {};
 
-    // Concepts to check if T is a numeric type
+    // Concept to check if T is a numeric type
     template <typename T>
     concept Numeric = std::is_arithmetic_v<T>;
 
@@ -212,18 +212,18 @@ namespace linear_algebra {
     Matrix<T, Rows, Cols> Matrix<T, Rows, Cols>::inverse() const requires Numeric<T> {
         static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Inverse is only defined for square matrices");
 
-        // Calculate the determinant of the matrix
+
         T det = determinant();
         if (det == T(0)) {
-            // Matrix is singular, inverse doesn't exist
+
             throw std::runtime_error("Matrix is singular, inverse doesn't exist");
         }
 
-        // Calculate the adjugate matrix
+
         Matrix<T, Rows, Cols> adjugate;
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
-                // Calculate the cofactor of element (i, j)
+
                 Matrix<T, Rows - 1, Cols - 1> minor;
                 for (int m = 0, p = 0; m < Rows; ++m) {
                     if (m == i) continue;
@@ -233,16 +233,15 @@ namespace linear_algebra {
                     }
                     ++p;
                 }
-                // Calculate the sign of the cofactor
+
                 T sign = ((i + j) % 2 == 0) ? T(1) : T(-1);
-                // Calculate the determinant of the minor matrix
+
                 T minor_det = minor.determinant();
-                // Calculate the cofactor
+
                 adjugate(j, i) = sign * minor_det;
             }
         }
 
-        // Divide the adjugate matrix by the determinant
         Matrix<T, Rows, Cols> inversed;
         for (int i = 0; i < Rows; ++i) {
             for (int j = 0; j < Cols; ++j) {
@@ -310,6 +309,6 @@ namespace linear_algebra {
         return determinant_helper(*this, Rows);
     }
 
-} // namespace linear_algebra
+}
 
-#endif // MATRIX_HPP
+#endif 

@@ -1,3 +1,5 @@
+//Contains implementation for ADVariable class
+
 #ifndef AUTO_DIFFERENTIATION_HPP
 #define AUTO_DIFFERENTIATION_HPP
 
@@ -89,4 +91,4 @@ namespace linear_algebra {
     }
 }
 
-#endif // AUTO_DIFFERENTIATION_HPP
+#endif 
