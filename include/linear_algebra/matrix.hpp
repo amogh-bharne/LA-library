@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <cmath>
 #include <stdexcept>
+#include "vector.hpp"
 
 namespace linear_algebra {
 
@@ -72,6 +73,34 @@ namespace linear_algebra {
             return result;
         }
 
+        // //Multiply vector and matrix
+        // template<size_t N>
+        // friend Vector<T, Rows> operator*(const Matrix<T,Rows,Cols>&mat ,const Vector<T, N>& vec) {
+        //     static_assert(Cols == N, "Number of columns in the matrix must match the size of the vector.");
+        //     Vector<T, Rows> result;
+        //     for (size_t i = 0; i < Rows; ++i) {
+        //         T sum = 0;
+        //         for (size_t j = 0; j < Cols; ++j) {
+        //             sum += data[i][j] * vec[j];
+        //         }
+        //         result[i] = sum;
+        //     }
+        //     return result;
+        // }
+        template<size_t N>
+        friend Vector<T, Rows> operator*(const Matrix<T,Rows,Cols>& mat ,const Vector<T, N>& vec) {
+        static_assert(Cols == N, "Number of columns in the matrix must match the size of the vector.");
+        Vector<T, Rows> result;
+        for (size_t i = 0; i < Rows; ++i) {
+            T sum = 0;
+            for (size_t j = 0; j < Cols; ++j) {
+                sum += mat.data[i][j] * vec[j];
+            }
+            result[i] = sum;
+        }
+        return result;
+    }
+
         // Scalar operations
         Matrix<T, Rows, Cols> operator*(T scalar) const;
         Matrix<T, Rows, Cols> operator/(T scalar) const;
@@ -91,8 +120,14 @@ namespace linear_algebra {
         // Calculate the Frobenius norm of the matrix
         T norm() const;
 
-    private:
+        //eigenvector and eigenvalue
+        std::pair<double,Matrix<T,Rows,1>> eigen();
+
         std::array<std::array<T, Cols>, Rows> data;
+
+
+    //private:
+        
     };
 
     // Constructors
@@ -293,6 +328,39 @@ double Matrix<T, Rows, Cols>::determinant() const {
     static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Determinant is only defined for square matrices");
     return determinant_helper(*this,Rows);
 }
+
+// template<typename T, int Rows, int Cols>
+// std::pair<double,Matrix<T,Rows,1>> Matrix<T, Rows, Cols>::eigen() {
+//     static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Eigen is only defined for square matrices");
+//     // Multiply matrix by its transpose to ensure a square matrix
+//     Matrix<T, Cols, Cols> square_matrix = this->transpose() * (*this);
+
+//     // Initialize a random vector as the initial guess
+//     Matrix<T, Cols, 1> eigenvector;
+//     for (int i = 0; i < Cols; ++i) {
+//         eigenvector(i, 0) = static_cast<T>(rand()) / RAND_MAX;
+//     }
+
+//     T lambda_prev = 0;
+//     T lambda = 0;
+//     for (int iter = 0; iter < 1000; ++iter) {
+//         // Multiply matrix by the eigenvector
+//         Matrix<T, Cols, 1> product = square_matrix * eigenvector;
+//         // Find the norm of the product
+//         T norm = product.norm();
+//         // Normalize the eigenvector
+//         eigenvector = product / norm;
+//         // Calculate the eigenvalue
+//         lambda = (eigenvector.transpose() * square_matrix * eigenvector)(0, 0);
+//         // Check for convergence
+//         if (std::abs(lambda - lambda_prev) < 1e-6) {
+//             break;
+//         }
+//         lambda_prev = lambda;
+//     }
+
+//     return {lambda, eigenvector};
+// }
 
 
 } // namespace linear_algebra

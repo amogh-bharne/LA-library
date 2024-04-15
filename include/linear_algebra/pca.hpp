@@ -26,7 +26,7 @@ namespace linear_algebra {
         Matrix<T, Cols, Cols> covariance_matrix = (centered_data.transpose() * centered_data) / static_cast<T>(Rows - 1);
 
         // Perform eigenvalue decomposition to find principal components
-        auto [eigenvalues, eigenvectors] = eigen(covariance_matrix);
+        auto [eigenvalues, eigenvectors] = power_iteration(covariance_matrix);
 
         // Sort eigenvalues and eigenvectors in descending order
         auto eigen_sort_indices = eigenvalues.argsort_descending();

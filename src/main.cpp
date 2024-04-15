@@ -40,5 +40,7 @@ int main() {
     double magnitude = v1.magnitude();
     std::cout << "Magnitude: " << magnitude << std::endl;
 
+    std::cout<<v1;
+
     return 0;
 }

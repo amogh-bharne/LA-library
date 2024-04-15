@@ -19,6 +19,14 @@ namespace linear_algebra {
         Vector<T, N> operator+(const Vector<T, N>& other) const;
         Vector<T, N> operator-(const Vector<T, N>& other) const;
         Vector<T, N> operator*(T scalar) const;
+
+        T& operator[]( int index) {
+            return data[index];
+        }
+
+        const T& operator[]( int index) const {
+            return data[index];
+        }
         T dot(const Vector<T, N>& other) const;
 
         // Cross product (for 3D vectors)
