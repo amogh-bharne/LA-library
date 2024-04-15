@@ -17,4 +17,24 @@ int main()
 
     std::cout<<res;
 
+        Matrix<double, 3, 3> A ({
+        {2, 3, -1},
+        {1, -1, 2},
+        {-1, 2, 1}
+    });
+
+    // Construct the right-hand side vector
+    Vector<double, 3> b ({5, 8, 3});
+
+    // Solve the system of linear equations
+    Vector<double, 3> x = A.solve_linear_equations(b);
+
+    // Print the solution
+    std::cout << "Solution:" << std::endl;
+    std::cout << "x = " << x[0] << std::endl;
+    std::cout << "y = " << x[1] << std::endl;
+    std::cout << "z = " << x[2] << std::endl;
+
+    return 0;
+
 }
