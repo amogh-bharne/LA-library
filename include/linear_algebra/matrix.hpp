@@ -123,7 +123,9 @@ namespace linear_algebra {
             return x;
         }
 
-        std::array<std::array<T, Cols>, Rows> data;
+        private:
+
+            std::array<std::array<T, Cols>, Rows> data;
     };
 
     // Constructors

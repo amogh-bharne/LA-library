@@ -8,7 +8,7 @@ int main() {
     mat_default.display();
     
     // Test constructor with initializer list
-    Matrix<double, 2, 2> mat_init = {{1.0, 2.0}, {3.0, 4.0}};
+    Matrix<double, 2, 2> mat_init = {{1.4, 2.4}, {3.44, 4.3}};
     mat_init.display();
 
     // Test addition
