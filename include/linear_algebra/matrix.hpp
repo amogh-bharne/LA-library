@@ -42,38 +42,14 @@ namespace linear_algebra {
         const T& operator()(int row, int col) const;
 
         // Basic operations
-        friend Matrix<T, Rows, Cols> operator+(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows, Cols>& b) {
-            Matrix<T, Rows, Cols> result;
-            for (int i = 0; i < Rows; ++i) {
-                for (int j = 0; j < Cols; ++j) {
-                    result.data[i][j] = a.data[i][j] + b.data[i][j];
-                }
-            }
-            return result;
-        }
+        template<typename U, int R, int C>
+        friend Matrix<U, R, C> operator+(const Matrix<U, R, C>& a, const Matrix<U, R, C>& b);
 
-        friend Matrix<T, Rows, Cols> operator-(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows, Cols>& b) {
-            Matrix<T, Rows, Cols> result;
-            for (int i = 0; i < Rows; ++i) {
-                for (int j = 0; j < Cols; ++j) {
-                    result.data[i][j] = a.data[i][j] - b.data[i][j];
-                }
-            }
-            return result;
-        }
+        template<typename U, int R, int C>
+        friend Matrix<U, R, C> operator-(const Matrix<U, R, C>& a, const Matrix<U, R, C>& b);
 
-        template<int OtherCols>
-        friend Matrix<T, Rows, OtherCols> operator*(const Matrix<T, Rows, Cols>& a, const Matrix<T, Cols, OtherCols>& b) {
-            Matrix<T, Rows, OtherCols> result;
-            for (int i = 0; i < Rows; ++i) {
-                for (int j = 0; j < OtherCols; ++j) {
-                    for (int k = 0; k < Cols; ++k) {
-                        result.data[i][j] += a.data[i][k] * b.data[k][j];
-                    }
-                }
-            }
-            return result;
-        }
+        template<typename U, int R, int C, int otherc>
+        friend Matrix<U, R, otherc> operator*(const Matrix<U, R, C>& a, const Matrix<U, C, otherc>& b);
 
         //Multiply vector and matrix
  
@@ -310,6 +286,45 @@ namespace linear_algebra {
         static_assert(is_square_matrix<Matrix<T, Rows, Cols>, Rows, Cols>::value, "Determinant is only defined for square matrices");
         return determinant_helper(*this, Rows);
     }
+
+    template<typename T, int Rows, int Cols>
+     Matrix<T, Rows, Cols> operator+(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows, Cols>& b){
+            Matrix<T, Rows, Cols> result;
+            for (int i = 0; i < Rows; ++i) {
+                for (int j = 0; j < Cols; ++j) {
+                    result.data[i][j] = a.data[i][j] + b.data[i][j];
+                }
+            }
+            return result;
+        }
+
+
+    template<typename T, int Rows, int Cols>
+    Matrix<T, Rows, Cols> operator-(const Matrix<T, Rows, Cols>& a, const Matrix<T, Rows, Cols>& b)
+     {
+            Matrix<T, Rows, Cols> result;
+            for (int i = 0; i < Rows; ++i) {
+                for (int j = 0; j < Cols; ++j) {
+                    result.data[i][j] = a.data[i][j] - b.data[i][j];
+                }
+            }
+            return result;
+        }
+
+    template<typename T, int Rows, int Cols,int OtherCols>
+    Matrix<T, Rows, OtherCols> operator*(const Matrix<T, Rows, Cols>& a, const Matrix<T, Cols, OtherCols>& b) {
+    // Check if the matrices are compatible for multiplication
+
+    Matrix<T, Rows, OtherCols> result;
+    for (int i = 0; i < Rows; ++i) {
+        for (int j = 0; j < OtherCols; ++j) {
+            for (int k = 0; k < Cols; ++k) {
+                result.data[i][j] += a.data[i][k] * b.data[k][j];
+            }
+        }
+    }
+    return result;
+}
 
 }
 

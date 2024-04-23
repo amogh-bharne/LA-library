@@ -50,7 +50,11 @@ namespace linear_algebra {
         }
         os << ")";
         return os;
-    }
+        }
+
+        template<typename... Vectors>
+        static Vector<T, N> add(const Vector<T, N>& first, const Vectors&... others);
+    
         
     private:
         T data[N];
@@ -71,6 +75,14 @@ namespace linear_algebra {
         for (size_t i = 0; i < N; ++i) {
             data[i] = arr[i];
         }
+    }
+
+    template<typename T, size_t N>
+    template<typename... Vectors>
+    Vector<T, N> Vector<T, N>::add(const Vector<T, N>& first, const Vectors&... others) {
+        Vector<T, N> result = first;
+        (void)std::initializer_list<int>{(result = result + others, 0)...};
+        return result;
     }
 
     // Basic operations
@@ -141,6 +153,8 @@ namespace linear_algebra {
         }
         return std::sqrt(sum_sq);
     }
+
+
 
 } 
 
