@@ -6,6 +6,7 @@
 #include <cmath> 
 #include <type_traits> 
 #include <ostream>
+#include <functional>
 
 namespace linear_algebra {
 
@@ -40,20 +41,44 @@ namespace linear_algebra {
         // Magnitude
         T magnitude() const;
 
-        friend std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec) {
-        os << "(";
-        for (size_t i = 0; i < N; ++i) {
-            os << vec.data[i];
-            if (i != N - 1) {
-                os << ", ";
-            }
-        }
-        os << ")";
-        return os;
-        }
+        template<typename U, size_t S>
+        friend std::ostream& operator<<(std::ostream& os, const Vector<U, S>& vec);
 
         template<typename... Vectors>
         static Vector<T, N> add(const Vector<T, N>& first, const Vectors&... others);
+
+        template <typename... ScalarVectorPairs>
+        static Vector<T, N> linearCombination(const ScalarVectorPairs&... scalarVectorPairs);
+
+        auto square() const {
+            return [this]<typename U>(Vector<U, N> v) {
+                Vector<U, N> result;
+                for (size_t i = 0; i < N; ++i) {
+                    result[i] = v[i] * v[i];
+                }
+                return result;
+            }(*this);
+        }
+
+        auto cube() const {
+            return [this]<typename U>(Vector<U, N> v) {
+                Vector<U, N> result;
+                for (size_t i = 0; i < N; ++i) {
+                    result[i] = v[i] * v[i] * v[i];
+                }
+                return result;
+            }(*this);
+        }
+
+        auto transform(const std::function<T(T)>& func) const {
+            return [this, func]<typename U>(Vector<U, N> v) {
+                Vector<U, N> result;
+                for (size_t i = 0; i < N; ++i) {
+                    result[i] = func(v[i]);
+                }
+                return result;
+            }(*this);
+        }
     
         
     private:
@@ -84,6 +109,19 @@ namespace linear_algebra {
         (void)std::initializer_list<int>{(result = result + others, 0)...};
         return result;
     }
+
+    template<typename T, size_t N> 
+     std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec){
+        os << "(";
+        for (size_t i = 0; i < N; ++i) {
+            os << vec[i];
+            if (i != N - 1) {
+                os << ", ";
+            }
+        }
+        os << ")";
+        return os;
+        }
 
     // Basic operations
     template<typename T, size_t N>
@@ -152,6 +190,28 @@ namespace linear_algebra {
             sum_sq += data[i] * data[i];
         }
         return std::sqrt(sum_sq);
+    }
+
+    // Linear combination
+    template<typename T, size_t N>
+    template <typename... ScalarVectorPairs>
+    Vector<T, N> Vector<T, N>::linearCombination(const ScalarVectorPairs&... scalarVectorPairs) {
+        Vector<T, N> result;
+        linearCombinationHelper(result, scalarVectorPairs...);
+        return result;
+    }
+
+    template<typename T, size_t N>
+    void linearCombinationHelper(Vector<T, N>& result) {
+        // no pairs
+    }
+
+    template<typename T, size_t N, typename... Rest>
+    void linearCombinationHelper(Vector<T, N>& result, T scalar, const Vector<T, N>& vec, const Rest&... rest) {
+        for (size_t i = 0; i < N; ++i) {
+            result[i] += scalar * vec[i];
+        }
+        linearCombinationHelper(result, rest...);
     }
 
 

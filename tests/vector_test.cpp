@@ -3,26 +3,36 @@
 
 using namespace linear_algebra;
 int main() {
-    // Test case for default constructor
-    Vector<double, 3> vec1;
-    std::cout << "Default constructed vector: " << vec1 << std::endl;
-
-    // Test case for constructor with array
-    float arr[3] = {1.0, 2.0, 3.0};
-    linear_algebra::Vector<float, 3> vec2(arr);
-    std::cout << "Vector constructed from array: " << vec2 << std::endl;
-
-    Vector<float,3> v2({2,3,4});
-
-    Vector<float,3> v3({2,3,4});
-
-    auto sum= Vector<float,3>::add(vec2,v2,v3);
-
-    std::cout<<sum;
 
 
+        Vector<double, 3> v1({1.0, 2.0, 3.0});
+        Vector<double, 3> v2({4.0, 5.0, 6.0});
+        Vector<double, 3> v3({7.0, 8.0, 9.0});
+
+        auto result = Vector<double, 3>::linearCombination(2.0, v1, -1.5, v2, 3.0, v3);
+        std::cout << result << std::endl; 
 
 
+    // // Test case for default constructor
+    // Vector<double, 3> vec1;
+    // std::cout << "Default constructed vector: " << vec1 << std::endl;
+
+    // // Test case for constructor with array
+    // double arr[3] = {1.0, 2.0, 3.0};
+    // linear_algebra::Vector<double, 3> vec2(arr);
+    // std::cout << "Vector constructed from array: " << vec2 << std::endl;
+
+    // Vector<float,3> v2({2,3,4});
+
+    // Vector<float,3> v3({2,3,4});
+
+    // Vector<float,3> v1({2,3,4});
+
+
+
+    // auto sum= Vector<float,3>::add(v1,v2,v3);
+
+    // std::cout<<sum;
 
 
     // // Test case for addition
@@ -55,6 +65,8 @@ int main() {
     // // Test case for magnitude
     // double magnitude = vec8.magnitude();
     // std::cout << "Magnitude of vector: " << magnitude << std::endl;
+
+
 
     return 0;
 }

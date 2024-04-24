@@ -53,19 +53,8 @@ namespace linear_algebra {
 
         //Multiply vector and matrix
  
-        template<size_t N>
-        friend Vector<T, Rows> operator*(const Matrix<T,Rows,Cols>& mat ,const Vector<T, N>& vec) {
-        static_assert(Cols == N, "Number of columns in the matrix must match the size of the vector.");
-        Vector<T, Rows> result;
-        for (size_t i = 0; i < Rows; ++i) {
-            T sum = 0;
-            for (size_t j = 0; j < Cols; ++j) {
-                sum += mat.data[i][j] * vec[j];
-            }
-            result[i] = sum;
-        }
-        return result;
-    }
+        template<typename U, int R,int C,size_t S>
+        friend Vector<U, R> operator*(const Matrix<U,R,C>& mat ,const Vector<U, S>& vec);
 
         // Scalar operations
         Matrix<T, Rows, Cols> operator*(T scalar) const requires Numeric<T>;
@@ -172,6 +161,21 @@ namespace linear_algebra {
         }
         return result;
     }
+
+     template<typename T, int Rows, int Cols, size_t N>
+     Vector<T, Rows> operator*(const Matrix<T,Rows,Cols>& mat ,const Vector<T, N>& vec)
+     {
+        static_assert(Cols == N, "Number of columns in the matrix must match the size of the vector.");
+        Vector<T, Rows> result;
+        for (size_t i = 0; i < Rows; ++i) {
+            T sum = 0;
+            for (size_t j = 0; j < Cols; ++j) {
+                sum += mat.data[i][j] * vec[j];
+            }
+            result[i] = sum;
+        }
+        return result;
+     }
 
     // Transpose
     template<typename T, int Rows, int Cols>
