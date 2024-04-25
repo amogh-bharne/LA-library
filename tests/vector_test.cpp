@@ -16,8 +16,10 @@ int main() {
     // Dot product
     float dot_product = v1.dot(v3);
 
+    Vector<float, 3> cro({2.3f,3.55f,2.5f});
+
     // Cross product
-    Vector<float, 3> v6 = v1.cross(v3);
+    Vector<float, 3> v6 = v1.cross(cro);
 
     // Normalization
     Vector<float, 4> v7 = v2.normalize();

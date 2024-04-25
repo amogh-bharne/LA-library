@@ -318,6 +318,8 @@ namespace linear_algebra {
     template<typename T, int Rows, int Cols,int OtherCols>
     Matrix<T, Rows, OtherCols> operator*(const Matrix<T, Rows, Cols>& a, const Matrix<T, Cols, OtherCols>& b) {
     // Check if the matrices are compatible for multiplication
+    static_assert(Cols == OtherCols, "Number of columns in the first matrix must match the number of rows in the second matrix");
+
 
     Matrix<T, Rows, OtherCols> result;
     for (int i = 0; i < Rows; ++i) {
